@@ -4,7 +4,7 @@
         <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>0.0.9</Version>
+        <Version>1.0.0</Version>
         <Title>yawaflua.WebSockets</Title>
         <Description>New AspNet controllers looks like websocket manager </Description>
         <Copyright>Dmitrii Shimanskii</Copyright>
