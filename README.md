@@ -85,6 +85,33 @@ public class GameController : WebSocketController
     }
 }
 ```
+## Providing dependencies in controller
+```csharp
+[WebSocket("/chat")]
+public class ChatController : WebSocketController
+{
+    public static DbContext dbContext;
+
+    public ChatController(DbContext dbContext)
+    {
+        ChatController.dbContext = dbContext;
+    }
+    
+    [WebSocket("join/{roomId}")]
+    public async Task JoinRoom(WebSocket webSocket, HttpContext context)
+    {
+        await dbContext.Add(...);
+        // Next your logic etc
+    }
+
+    [WebSocket("leave/{roomId}")]
+    public async Task LeaveRoom(WebSocket webSocket, HttpContext context)
+    {
+        // Handle room leaving
+    }
+}
+```
+
 
 ## Lifecycle Management
 1. **Connection** - Automatically handled by middleware
@@ -118,4 +145,4 @@ public class GameController : WebSocketController
   ```
 
 ## License
-MIT License - Free for commercial and personal use.
+[Apache license - Free for commercial and personal use.](LICENSE)
