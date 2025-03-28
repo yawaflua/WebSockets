@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yawaflua.WebSockets", "yawaflua.WebSockets\yawaflua.WebSockets.csproj", "{D9E47608-7769-45DD-8E35-4DA90127D9E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{D90CE32E-BF1F-4129-8FB1-0DD6BD816830}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yawaflua.WebSockets.Tests", "yawaflua.WebSockets.Tests\yawaflua.WebSockets.Tests.csproj", "{B4B37A81-4147-4C19-91BC-D897CAEBEE6A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D9E47608-7769-45DD-8E35-4DA90127D9E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9E47608-7769-45DD-8E35-4DA90127D9E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9E47608-7769-45DD-8E35-4DA90127D9E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9E47608-7769-45DD-8E35-4DA90127D9E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90CE32E-BF1F-4129-8FB1-0DD6BD816830}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90CE32E-BF1F-4129-8FB1-0DD6BD816830}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90CE32E-BF1F-4129-8FB1-0DD6BD816830}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90CE32E-BF1F-4129-8FB1-0DD6BD816830}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B4B37A81-4147-4C19-91BC-D897CAEBEE6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B4B37A81-4147-4C19-91BC-D897CAEBEE6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B4B37A81-4147-4C19-91BC-D897CAEBEE6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B4B37A81-4147-4C19-91BC-D897CAEBEE6A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
