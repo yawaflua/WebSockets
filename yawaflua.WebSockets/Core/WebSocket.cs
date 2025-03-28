@@ -4,7 +4,7 @@ using yawaflua.WebSockets.Models.Interfaces;
 
 namespace yawaflua.WebSockets.Core;
 
-public class WebSocket : IDisposable
+internal class WebSocket : IWebSocket
 {
     private readonly System.Net.WebSockets.WebSocket _webSocket;
     private readonly WebSocketReceiveResult? _webSocketReceiveResult;
@@ -16,7 +16,7 @@ public class WebSocket : IDisposable
     public string? CloseStatusDescription => _webSocket.CloseStatusDescription;
     public string? Message => _message;
     public WebSocketMessageType? MessageType => _webSocketReceiveResult?.MessageType;
-    public IWebSocketClient Client;
+    public IWebSocketClient Client { get; }
     internal WebSocket(System.Net.WebSockets.WebSocket webSocket, WebSocketReceiveResult? webSocketReceiveResult, string? message, IWebSocketClient client)
     {
         _webSocket = webSocket;

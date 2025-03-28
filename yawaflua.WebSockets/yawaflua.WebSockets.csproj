@@ -4,15 +4,18 @@
         <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Version>1.0.0</Version>
+        <Version>0.0.9</Version>
         <Title>yawaflua.WebSockets</Title>
         <Description>New AspNet controllers looks like websocket manager </Description>
         <Copyright>Dmitrii Shimanskii</Copyright>
         <PackageProjectUrl>https://github.com/yawaflua/WebSockets</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/yawaflua/WebSockets/LICENCE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/yawaflua/WebSockets</RepositoryUrl>
+        <Read>https://github.com/yawaflua/WebSockets</Read>
         <PackageTags>websocket</PackageTags>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>

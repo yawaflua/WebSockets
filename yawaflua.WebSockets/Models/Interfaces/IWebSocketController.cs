@@ -5,5 +5,11 @@ namespace yawaflua.WebSockets.Models.Interfaces;
 
 internal interface IWebSocketController
 {
-    Task OnMessageAsync(WebSocket webSocket, HttpContext httpContext);
+    /// <summary>
+    /// Example of working with IWebSocketController
+    /// </summary>
+    /// <param name="webSocket"></param>
+    /// <param name="httpContext"></param>
+    /// <returns></returns>
+    Task OnMessageAsync(IWebSocket webSocket, HttpContext httpContext);
 }

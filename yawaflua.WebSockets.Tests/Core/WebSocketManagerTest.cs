@@ -11,6 +11,7 @@ using Moq;
 using Xunit;
 using yawaflua.WebSockets.Attributes;
 using yawaflua.WebSockets.Models.Abstracts;
+using yawaflua.WebSockets.Models.Interfaces;
 using Assert = Xunit.Assert;
 using WebSocket = yawaflua.WebSockets.Core.WebSocket;
 using WebSocketManager = Microsoft.AspNetCore.Http.WebSocketManager;
@@ -35,10 +36,10 @@ public class WebSocketRouterTests
     public class TestHandler : WebSocketController
     {
         [yawaflua.WebSockets.Attributes.WebSocket("/static")]
-        public static Task StaticHandler(WebSocket ws, HttpContext context) => Task.CompletedTask;
+        public static Task StaticHandler(IWebSocket ws, HttpContext context) => Task.CompletedTask;
 
         [yawaflua.WebSockets.Attributes.WebSocket("/instance")]
-        public Task InstanceHandler(WebSocket ws, HttpContext context) => Task.CompletedTask;
+        public Task InstanceHandler(IWebSocket ws, HttpContext context) => Task.CompletedTask;
     }
 
     [Fact]

@@ -19,7 +19,7 @@ public class ChatController : WebSocketController
 {
     [WebSocket("/chat")]
     public override async Task OnMessageAsync(
-        WebSocket webSocket, 
+        IWebSocket webSocket, 
         HttpContext httpContext)
     {
         await webSocket.SendAsync("Message!");
@@ -58,7 +58,7 @@ public class NotificationsController : WebSocketController
 {
     [WebSocket("/notifications/{userId}")]
     public override async Task OnMessageAsync(
-        WebSocket webSocket,
+        IWebSocket webSocket,
         HttpContext httpContext)
     {
         var userId = httpContext.Request.RouteValues["userId"];
@@ -73,13 +73,13 @@ public class NotificationsController : WebSocketController
 public class GameController : WebSocketController
 {
     [WebSocket("join/{roomId}")]
-    public async Task JoinRoom(WebSocket webSocket, HttpContext context)
+    public async Task JoinRoom(IWebSocket webSocket, HttpContext context)
     {
         // Handle room joining
     }
 
     [WebSocket("leave/{roomId}")]
-    public async Task LeaveRoom(WebSocket webSocket, HttpContext context)
+    public async Task LeaveRoom(IWebSocket webSocket, HttpContext context)
     {
         // Handle room leaving
     }
