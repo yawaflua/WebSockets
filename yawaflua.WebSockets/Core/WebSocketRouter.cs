@@ -17,11 +17,12 @@ public class WebSocketRouter
     internal static readonly List<IWebSocketClient> Clients = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<WebSocketRouter> _logger;
-
-    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger)
+    private readonly WebSocketConfig WebSocketConfig;
+    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger, WebSocketConfig webSocketConfig)
     {
         _serviceProvider = serviceProvider;
         this._logger = logger;
+        WebSocketConfig = webSocketConfig;
         DiscoverHandlers();
         Task.Run(() =>
         {
@@ -146,6 +147,13 @@ public class WebSocketRouter
                     {
                         var client = new WebSocketClient(context, webSocket, path);
                         Clients.Add(client);
+                        
+                        await Task.Run(async () =>
+                        {
+                            if (WebSocketConfig.OnOpenHandler != null)
+                                await WebSocketConfig.OnOpenHandler((webSocket as IWebSocket)!, context);
+                        }, cts);
+                        
                         var buffer = new byte[1024 * 4];
                         while (webSocket.State == WebSocketState.Open)
                         {
