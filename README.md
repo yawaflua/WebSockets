@@ -112,7 +112,23 @@ public class ChatController : WebSocketController
 }
 ```
 
-## Run any code on connection to 
+## Run any code on connection to WebSocket
+```csharp
+services.AddSingleton(new WebSocketConfig()
+{
+    OnOpenHandler = async (socket, context) =>
+    {
+        if (socket.WebSocketManager!.GetAllClients().Count(k =>
+                Equals(k.ConnectionInfo!.RemoteIpAddress!.MapToIPv4(), 
+                    socket.Client.ConnectionInfo!.RemoteIpAddress!.MapToIPv4())) >= 3)
+        {
+            await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Too many users");
+        }
+        Console.WriteLine($"{socket.Client.Id} has been connected to {socket.Client.Path}");
+    }
+})
+```
+
 
 ## Lifecycle Management
 1. **Connection** - Automatically handled by middleware
