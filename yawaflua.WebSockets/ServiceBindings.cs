@@ -8,9 +8,12 @@ namespace yawaflua.WebSockets;
 
 public static class ServiceBindings
 {
-    public static IServiceCollection SettingUpWebSockets(this IServiceCollection isc)
+    public static IServiceCollection SettingUpWebSockets(this IServiceCollection isc, WebSocketConfig? socketOptions = null)
     {
         isc.AddSingleton<WebSocketRouter>();
+        if (socketOptions != null) isc.AddSingleton(socketOptions);
+        if (isc.All(k => k.ServiceType != typeof(WebSocketConfig)))
+            isc.AddSingleton(new WebSocketConfig());
         isc.AddScoped<IWebSocketManager, WebSocketManager>();
         isc.AddSingleton<WebSocketMiddleware>();
         return isc;

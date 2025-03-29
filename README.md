@@ -112,6 +112,7 @@ public class ChatController : WebSocketController
 }
 ```
 
+## Run any code on connection to 
 
 ## Lifecycle Management
 1. **Connection** - Automatically handled by middleware

@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -11,17 +12,19 @@ using yawaflua.WebSockets.Models.Interfaces;
 
 namespace yawaflua.WebSockets.Core;
 
+[SuppressMessage("ReSharper", "AsyncVoidLambda")]
 public class WebSocketRouter
 {
     internal static readonly Dictionary<string, Func<WebSocket, HttpContext, Task>> Routes = new();
     internal static readonly List<IWebSocketClient> Clients = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<WebSocketRouter> _logger;
-
-    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger)
+    private readonly WebSocketConfig? _webSocketConfig;
+    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger, WebSocketConfig? webSocketConfig = null)
     {
         _serviceProvider = serviceProvider;
-        this._logger = logger;
+        _logger = logger;
+        _webSocketConfig = webSocketConfig;
         DiscoverHandlers();
         Task.Run(() =>
         {
@@ -62,7 +65,7 @@ public class WebSocketRouter
     
                     var parameters = func.GetParameters();
                     if (parameters.Length != 2 || 
-                        parameters[0].ParameterType != typeof(WebSocket) ||
+                        parameters[0].ParameterType != typeof(IWebSocket) ||
                         parameters[1].ParameterType != typeof(HttpContext) ||
                         func.ReturnType != typeof(Task))
                     {
@@ -144,8 +147,16 @@ public class WebSocketRouter
                 {
                     try
                     {
+                        var webSocketManager = new WebSocketManager();
                         var client = new WebSocketClient(context, webSocket, path);
                         Clients.Add(client);
+                        
+                        await Task.Run(async () =>
+                        {
+                            if (_webSocketConfig?.OnOpenHandler != null)
+                                await _webSocketConfig.OnOpenHandler(new WebSocket(webSocket, client, webSocketManager)!, context);
+                        }, cts);
+                        
                         var buffer = new byte[1024 * 4];
                         while (webSocket.State == WebSocketState.Open)
                         {
@@ -154,13 +165,16 @@ public class WebSocketRouter
                                 await handler(
                                     new WebSocket(
                                         webSocket,
-                                        result,
+                                        client,
+                                        webSocketManager,
                                         Encoding.UTF8.GetString(buffer, 0, result.Count),
-                                        client),
-                                    context);
+                                        result), context);
                             else
                                 Clients.Remove(client);
                         }
+                        
+                        if (Clients.Any(k => k.Id == client.Id))
+                            Clients.Remove(client);
                     }
                     catch (Exception ex)
                     {

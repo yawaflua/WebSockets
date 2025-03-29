@@ -1,10 +1,12 @@
 ﻿using System.Net.WebSockets;
+using yawaflua.WebSockets.Core;
 
 namespace yawaflua.WebSockets.Models.Interfaces;
 
 public interface IWebSocket : IDisposable
 {
     WebSocketState State { get; }
+    IWebSocketManager WebSocketManager { get; }
     WebSocketCloseStatus? CloseStatus { get; }
     string? SubProtocol { get; }
     string? CloseStatusDescription { get; }
