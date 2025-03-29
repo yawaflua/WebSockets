@@ -1,4 +1,5 @@
-﻿using System.Net.WebSockets;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Http;
@@ -11,18 +12,19 @@ using yawaflua.WebSockets.Models.Interfaces;
 
 namespace yawaflua.WebSockets.Core;
 
+[SuppressMessage("ReSharper", "AsyncVoidLambda")]
 public class WebSocketRouter
 {
     internal static readonly Dictionary<string, Func<WebSocket, HttpContext, Task>> Routes = new();
     internal static readonly List<IWebSocketClient> Clients = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<WebSocketRouter> _logger;
-    private readonly WebSocketConfig WebSocketConfig;
-    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger, WebSocketConfig webSocketConfig)
+    private readonly WebSocketConfig? _webSocketConfig;
+    public WebSocketRouter(IServiceProvider serviceProvider, ILogger<WebSocketRouter> logger, WebSocketConfig? webSocketConfig = null)
     {
         _serviceProvider = serviceProvider;
-        this._logger = logger;
-        WebSocketConfig = webSocketConfig;
+        _logger = logger;
+        _webSocketConfig = webSocketConfig;
         DiscoverHandlers();
         Task.Run(() =>
         {
@@ -150,8 +152,8 @@ public class WebSocketRouter
                         
                         await Task.Run(async () =>
                         {
-                            if (WebSocketConfig.OnOpenHandler != null)
-                                await WebSocketConfig.OnOpenHandler((webSocket as IWebSocket)!, context);
+                            if (_webSocketConfig?.OnOpenHandler != null)
+                                await _webSocketConfig.OnOpenHandler((webSocket as IWebSocket)!, context);
                         }, cts);
                         
                         var buffer = new byte[1024 * 4];
