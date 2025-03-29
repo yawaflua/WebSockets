@@ -65,7 +65,7 @@ public class WebSocketRouter
     
                     var parameters = func.GetParameters();
                     if (parameters.Length != 2 || 
-                        parameters[0].ParameterType != typeof(WebSocket) ||
+                        parameters[0].ParameterType != typeof(IWebSocket) ||
                         parameters[1].ParameterType != typeof(HttpContext) ||
                         func.ReturnType != typeof(Task))
                     {
@@ -147,13 +147,14 @@ public class WebSocketRouter
                 {
                     try
                     {
+                        var webSocketManager = new WebSocketManager();
                         var client = new WebSocketClient(context, webSocket, path);
                         Clients.Add(client);
                         
                         await Task.Run(async () =>
                         {
                             if (_webSocketConfig?.OnOpenHandler != null)
-                                await _webSocketConfig.OnOpenHandler((webSocket as IWebSocket)!, context);
+                                await _webSocketConfig.OnOpenHandler(new WebSocket(webSocket, client, webSocketManager)!, context);
                         }, cts);
                         
                         var buffer = new byte[1024 * 4];
@@ -164,13 +165,16 @@ public class WebSocketRouter
                                 await handler(
                                     new WebSocket(
                                         webSocket,
-                                        result,
+                                        client,
+                                        webSocketManager,
                                         Encoding.UTF8.GetString(buffer, 0, result.Count),
-                                        client),
-                                    context);
+                                        result), context);
                             else
                                 Clients.Remove(client);
                         }
+                        
+                        if (Clients.Any(k => k.Id == client.Id))
+                            Clients.Remove(client);
                     }
                     catch (Exception ex)
                     {

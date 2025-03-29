@@ -11,18 +11,24 @@ internal class WebSocket : IWebSocket
     private readonly string? _message;
 
     public WebSocketState State => _webSocket.State;
+    public IWebSocketManager WebSocketManager { get; }
     public WebSocketCloseStatus? CloseStatus => _webSocket.CloseStatus;
     public string? SubProtocol => _webSocket.SubProtocol;
     public string? CloseStatusDescription => _webSocket.CloseStatusDescription;
     public string? Message => _message;
     public WebSocketMessageType? MessageType => _webSocketReceiveResult?.MessageType;
     public IWebSocketClient Client { get; }
-    internal WebSocket(System.Net.WebSockets.WebSocket webSocket, WebSocketReceiveResult? webSocketReceiveResult, string? message, IWebSocketClient client)
+    internal WebSocket(System.Net.WebSockets.WebSocket webSocket, 
+        IWebSocketClient client, 
+        IWebSocketManager webSocketManager,
+        string? message = null, 
+        WebSocketReceiveResult? webSocketReceiveResult = null) 
     {
         _webSocket = webSocket;
         _webSocketReceiveResult = webSocketReceiveResult;
         _message = message;
         Client = client;
+        WebSocketManager = webSocketManager;
     }
 
     public async Task SendAsync(string m, WebSocketMessageType messageType = WebSocketMessageType.Text, CancellationToken cts = default)
