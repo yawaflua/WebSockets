@@ -1,5 +1,6 @@
 ﻿using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using yawaflua.WebSockets.Models.Interfaces;
 
 namespace yawaflua.WebSockets.Core;
@@ -34,6 +35,13 @@ internal class WebSocket : IWebSocket
     public async Task SendAsync(string m, WebSocketMessageType messageType = WebSocketMessageType.Text, CancellationToken cts = default)
     => await _webSocket.SendAsync(
             Encoding.UTF8.GetBytes(m),
+            messageType,
+            true,
+            cts);
+    
+    public async Task SendAsync<T>(T message, WebSocketMessageType messageType = WebSocketMessageType.Text, CancellationToken cts = default)
+        => await _webSocket.SendAsync(
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message)),
             messageType,
             true,
             cts);
