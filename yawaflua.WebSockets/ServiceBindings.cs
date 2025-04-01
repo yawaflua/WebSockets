@@ -8,7 +8,8 @@ namespace yawaflua.WebSockets;
 
 public static class ServiceBindings
 {
-    public static IServiceCollection SettingUpWebSockets(this IServiceCollection isc, WebSocketConfig? socketOptions = null)
+    public static IServiceCollection SettingUpWebSockets(this IServiceCollection isc,
+        WebSocketConfig? socketOptions = null)
     {
         isc.AddSingleton<WebSocketRouter>();
         if (socketOptions != null) isc.AddSingleton(socketOptions);
@@ -19,10 +20,11 @@ public static class ServiceBindings
         return isc;
     }
 
-    public static IApplicationBuilder ConnectWebSockets(this IApplicationBuilder iab)
+    public static IApplicationBuilder UseWebSocketWithSwagger(this IApplicationBuilder app)
     {
-        iab.UseWebSockets();
-        iab.UseMiddleware<WebSocketMiddleware>();
-        return iab;
+        app.UseWebSockets();
+        app.UseMiddleware<WebSocketMiddleware>();
+
+        return app;
     }
 }

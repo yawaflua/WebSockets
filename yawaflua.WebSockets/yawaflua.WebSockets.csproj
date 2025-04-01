@@ -19,11 +19,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="JetBrains.Annotations" Version="(2023.3.0,)"/>
-        <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="(2.1.7,)" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="(6.0.0,)" />
-        <PackageReference Include="System.Net.WebSockets" Version="(4.0.0,)"/>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="(2.2.0,)" PrivateAssets="all">
+        <PackageReference Include="JetBrains.Annotations" Version=">= (2023.3.0,)"/>
+        <PackageReference Include="Microsoft.AspNetCore.WebSockets" Version=">= (2.1.7,)" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version=">= (6.0.0,)" />
+        <PackageReference Include="System.Net.WebSockets" Version=">= (4.0.0,)"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version=">= (2.2.2,)" PrivateAssets="all">
             <Private>False</Private>
         </PackageReference>
         <None Include="..\README.md" Pack="true" PackagePath="\"/>

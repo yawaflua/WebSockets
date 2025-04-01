@@ -1,7 +1,6 @@
 ﻿using System.Net.WebSockets;
 using yawaflua.WebSockets;
 using yawaflua.WebSockets.Core;
-using yawaflua.WebSockets.Models.Interfaces;
 
 namespace Examples;
 
@@ -22,18 +21,20 @@ class Program
 
 internal class Startup
 {
-    public void ConfigureServices(IServiceCollection services)
+    public static void ConfigureServices(IServiceCollection services)
     {
         services.SettingUpWebSockets();
         services.AddRouting();
+        services.AddControllers();
+        services.AddEndpointsApiExplorer();
         services.AddHttpLogging();
         services.AddSingleton<TestWebSocketServer>();
         services.AddSingleton<ChatController>();
         services.AddSingleton(new WebSocketConfig()
         {
-            OnOpenHandler = async (socket, context) =>
+            OnOpenHandler = async (socket, _) =>
             {
-                if (socket.WebSocketManager!.GetAllClients().Count(k =>
+                if (socket.WebSocketManager.GetAllClients().Count(k =>
                         Equals(k.ConnectionInfo!.RemoteIpAddress!.MapToIPv4(), 
                             socket.Client.ConnectionInfo!.RemoteIpAddress!.MapToIPv4())) >= 3)
                 {
@@ -42,15 +43,16 @@ internal class Startup
                 Console.WriteLine($"{socket.Client.Id} has been connected to {socket.Client.Path}");
             }
         });
-        services.AddScoped<IConfiguration>(k => new ConfigurationBuilder()
+        services.AddScoped<IConfiguration>(_ => new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", true)
             .Build());
     }
 
-    public void Configure(IApplicationBuilder app)
+    public static void Configure(IApplicationBuilder app)
     {
-        app.ConnectWebSockets();
         app.UseRouting();
+        
+        app.UseWebSocketWithSwagger();
         app.UseHttpLogging();
         app.UseWelcomePage();
         

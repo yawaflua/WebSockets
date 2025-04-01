@@ -9,14 +9,15 @@ internal class WebSocketClient : IWebSocketClient
     private HttpContext HttpContext { get; set; }
     public Guid Id { get; } = Guid.NewGuid();
     public string Path { get; }
-    public ConnectionInfo ConnectionInfo { get => HttpContext.Connection; }
-    public IDictionary<object, object> Items
+    public ConnectionInfo ConnectionInfo => HttpContext.Connection;
+
+    public IDictionary<object, object>? Items
     {
         get => HttpContext.Items;
-        set => HttpContext.Items = (value);
+        set => HttpContext.Items = value;
     }
 
-    public HttpRequest HttpRequest { get => HttpContext.Request; }
+    public HttpRequest HttpRequest => HttpContext.Request;
     public WebSocket webSocket { get; }
 
     internal WebSocketClient(HttpContext httpContext, WebSocket webSocket, string path)

@@ -140,21 +140,22 @@ public class WebSocketRouter
             
             var path = context.Request.Path.Value;
 
-            if (Routes.TryGetValue(path, out var handler))
+            if (path != null && Routes.TryGetValue(path, out var handler))
             {
                 var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                 await Task.Run(async () =>
                 {
+                    IWebSocketClient client = null!;
+                    var webSocketManager = new WebSocketManager();
                     try
                     {
-                        var webSocketManager = new WebSocketManager();
-                        var client = new WebSocketClient(context, webSocket, path);
+                        client = new WebSocketClient(context, webSocket, path);
                         Clients.Add(client);
                         
                         await Task.Run(async () =>
                         {
                             if (_webSocketConfig?.OnOpenHandler != null)
-                                await _webSocketConfig.OnOpenHandler(new WebSocket(webSocket, client, webSocketManager)!, context);
+                                await _webSocketConfig.OnOpenHandler(new WebSocket(webSocket, client, webSocketManager), context);
                         }, cts);
                         
                         var buffer = new byte[1024 * 4];
@@ -179,6 +180,11 @@ public class WebSocketRouter
                     catch (Exception ex)
                     {
                         _logger.LogError(message:"Error with handling request: ",exception: ex);
+                        await Task.Run(async () =>
+                        {
+                            if (_webSocketConfig?.OnErrorHandler != null)
+                                await _webSocketConfig.OnErrorHandler(ex, new WebSocket(webSocket, client, webSocketManager), context);
+                        }, cts);
                     }
 
                 }, cts);
@@ -186,11 +192,14 @@ public class WebSocketRouter
             else
             { 
                 context.Response.StatusCode = 404;
+                throw new KeyNotFoundException("Path not found");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, $"Error when handle request {context.Connection.Id}: ");
+            if (_webSocketConfig!.OnConnectionErrorHandler != null)
+                await _webSocketConfig.OnConnectionErrorHandler(ex, context);
         }
     }
 }

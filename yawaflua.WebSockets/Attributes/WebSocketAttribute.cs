@@ -1,5 +1,7 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace yawaflua.WebSockets.Attributes;
 
@@ -18,13 +20,17 @@ namespace yawaflua.WebSockets.Attributes;
 /// When applied to methods, defines specific sub-routes (requires class-level base path).
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
-public class WebSocketAttribute : RouteAttribute
+[ApiExplorerSettings(IgnoreApi = true)]
+public class WebSocketAttribute : RouteAttribute, IRouteTemplateProvider, IApiDescriptionVisibilityProvider
 {
     /// <summary>
     /// Original route template specified in attribute
     /// </summary>
-    public string Template { get; }
-    
+    public new string Template { get; }
+
+    public new int? Order { get; } = 0;
+    public new string? Name { get; }
+
     /// <summary>
     /// Creates WebSocket route definition
     /// </summary>
@@ -36,5 +42,8 @@ public class WebSocketAttribute : RouteAttribute
     public WebSocketAttribute([RouteTemplate]string path) : base(path)
     {
         Template = path;
+        Name = path;
     }
+
+    public bool IgnoreApi => true;
 }
