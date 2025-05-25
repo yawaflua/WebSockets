@@ -46,6 +46,8 @@ internal class Startup
         services.AddScoped<IConfiguration>(_ => new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", true)
             .Build());
+        
+        
     }
 
     public static void Configure(IApplicationBuilder app)

@@ -16,6 +16,8 @@ public static class ServiceBindings
         if (isc.All(k => k.ServiceType != typeof(WebSocketConfig)))
             isc.AddSingleton(new WebSocketConfig());
         isc.AddScoped<IWebSocketManager, WebSocketManager>();
+        isc.AddSingleton<IWebSocketManager, WebSocketManager>();
+        isc.AddTransient<IWebSocketManager, WebSocketManager>();
         isc.AddSingleton<WebSocketMiddleware>();
         return isc;
     }

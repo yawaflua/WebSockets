@@ -5,7 +5,7 @@ using WebSocketManager = yawaflua.WebSockets.Core.WebSocketManager;
 
 namespace yawaflua.WebSockets.Models.Abstracts;
 
-public abstract  class WebSocketController : IWebSocketController
+public abstract class WebSocketController : IWebSocketController
 {
     /// <summary>
     /// WebsocketManager provides work with all clients

@@ -21,7 +21,7 @@ namespace yawaflua.WebSockets.Attributes;
 /// </remarks>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
 [ApiExplorerSettings(IgnoreApi = true)]
-public class WebSocketAttribute : RouteAttribute, IRouteTemplateProvider, IApiDescriptionVisibilityProvider
+public class WebSocketAttribute : Attribute, IApiDescriptionVisibilityProvider
 {
     /// <summary>
     /// Original route template specified in attribute
@@ -39,7 +39,7 @@ public class WebSocketAttribute : RouteAttribute, IRouteTemplateProvider, IApiDe
     /// - Parameters: "/user/{id}"
     /// - Constraints: "/file/{name:alpha}"
     /// - Optional: "/feed/{category?}"</param>
-    public WebSocketAttribute([RouteTemplate]string path) : base(path)
+    public WebSocketAttribute(string path)
     {
         Template = path;
         Name = path;

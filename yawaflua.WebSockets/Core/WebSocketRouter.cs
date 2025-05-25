@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.WebSockets;
 using System.Reflection;
 using System.Text;
@@ -15,7 +17,7 @@ namespace yawaflua.WebSockets.Core;
 [SuppressMessage("ReSharper", "AsyncVoidLambda")]
 public class WebSocketRouter
 {
-    internal static readonly Dictionary<string, Func<WebSocket, HttpContext, Task>> Routes = new();
+    internal static readonly ConcurrentDictionary<string, Func<WebSocket, HttpContext, Task>> Routes = new();
     internal static readonly List<IWebSocketClient> Clients = new();
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<WebSocketRouter> _logger;
@@ -69,6 +71,7 @@ public class WebSocketRouter
                         parameters[1].ParameterType != typeof(HttpContext) ||
                         func.ReturnType != typeof(Task))
                     {
+                        _logger.LogCritical($"Invalid handler signature in {type.Name}.{func.Name}");
                         throw new InvalidOperationException(
                             $"Invalid handler signature in {type.Name}.{func.Name}");
                     }
@@ -79,15 +82,25 @@ public class WebSocketRouter
                             typeof(Func<WebSocket, HttpContext, Task>), 
                             func
                         );
-                        Routes.Add(parentAttributeTemplate, delegateFunc);
+                        if (!Routes.TryAdd(parentAttributeTemplate, delegateFunc))
+                        {
+                            _logger.LogCritical($"Error registered whilest adds new route: {parentAttributeTemplate}");
+                            throw new InvalidOperationException(
+                                $"Error registered whilest adds new route: {parentAttributeTemplate}");
+                        }
                     }
                     else
                     {
-                        Routes.Add(parentAttributeTemplate, async (ws, context) => 
+                        if (!Routes.TryAdd(parentAttributeTemplate, async (ws, context) =>
+                            {
+                                var instance = context.RequestServices.GetRequiredService(type);
+                                await (Task)func.Invoke(instance, new object[] { ws, context })!;
+                            }))
                         {
-                            var instance = context.RequestServices.GetRequiredService(type);
-                            await (Task)func.Invoke(instance, new object[] { ws, context })!;
-                        });
+                            _logger.LogCritical($"Error registered whilest adds new route: {parentAttributeTemplate}");
+                            throw new InvalidOperationException(
+                                $"Error registered whilest adds new route: {parentAttributeTemplate}");
+                        }
                     }
                 }
                 else
@@ -96,21 +109,42 @@ public class WebSocketRouter
                     {
                         var attribute =
                             (WebSocketAttribute)method.GetCustomAttributes(typeof(WebSocketAttribute), false).First();
+                        
+                        var key = parentAttributeTemplate+attribute.Template;
+
+                        if (Routes.ContainsKey(key))
+                        {
+                            Debug.WriteLine(Routes);
+                            _logger.LogCritical($"Duplicate route error: {key}");
+                            throw new InvalidOperationException(
+                                $"Duplicate route error: {key}");
+                        }
+                        
                         if (method.IsStatic)
                         {
                             var delegateFunc = (Func<WebSocket, HttpContext, Task>)Delegate.CreateDelegate(
                                 typeof(Func<WebSocket, HttpContext, Task>), 
                                 method
                             );
-                            Routes.Add(parentAttributeTemplate+attribute.Template, delegateFunc);
+                            if (!Routes.TryAdd(key, delegateFunc))
+                            {
+                                _logger.LogCritical($"Error registered whilest adds new route: {key}");
+                                throw new InvalidOperationException(
+                                    $"Error registered whilest adds new route: {key}");
+                            }
                         }
                         else
                         {
-                            Routes.Add(parentAttributeTemplate+attribute.Template, async (ws, context) => 
+                            if (!Routes.TryAdd(key, async (ws, context) =>
+                                {
+                                    var instance = context.RequestServices.GetRequiredService(type);
+                                    await (Task)method.Invoke(instance, new object[] { ws, context })!;
+                                }))
                             {
-                                var instance = context.RequestServices.GetRequiredService(type);
-                                await (Task)method.Invoke(instance, new object[] { ws, context })!;
-                            });
+                                _logger.LogCritical($"Error registered whilest adds new route: {key}");
+                                throw new InvalidOperationException(
+                                    $"Error registered whilest adds new route: {key}");
+                            }
                         }
                     }
                 }
@@ -127,8 +161,19 @@ public class WebSocketRouter
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(message:"Error when parsing attributes from assemblies: ", exception:ex);
+            _logger.LogCritical("Error when parsing attributes from assemblies: {ex}", ex);
+            Debug.WriteLine(ex);
+            Debug.WriteLine(Routes);
+            throw new Exception("Error when parsing attributes from assemblies", ex);
         }
+
+#if DEBUG
+        _logger.LogDebug("Routes:");
+        foreach (var route in Routes)
+        {
+            _logger.LogDebug("Key:FuncName => {k}:{f}", route.Key, route.Value.Method.Name);
+        }
+#endif
     }
 
     internal async Task HandleRequest(HttpContext context, CancellationToken cts = default)
@@ -179,12 +224,13 @@ public class WebSocketRouter
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(message:"Error with handling request: ",exception: ex);
+                        _logger.LogError("Error with handling request: {ex}", ex);
                         await Task.Run(async () =>
                         {
                             if (_webSocketConfig?.OnErrorHandler != null)
                                 await _webSocketConfig.OnErrorHandler(ex, new WebSocket(webSocket, client, webSocketManager), context);
                         }, cts);
+                        
                     }
 
                 }, cts);
@@ -197,7 +243,7 @@ public class WebSocketRouter
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Error when handle request {context.Connection.Id}: ");
+            _logger.LogError($"Error when handle request {context.Connection.RemoteIpAddress}: {ex}");
             if (_webSocketConfig!.OnConnectionErrorHandler != null)
                 await _webSocketConfig.OnConnectionErrorHandler(ex, context);
         }

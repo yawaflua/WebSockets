@@ -129,6 +129,26 @@ services.AddSingleton(new WebSocketConfig()
 })
 ```
 
+## Work with c=connected users from any point at your code!
+```csharp
+public class MyCoolService 
+{
+    private IWebSocketManager _manager;
+    public MyCoolService(IWebSocketManager manager)
+    {
+        _manager = manager;
+    }
+    
+    public async Task DoSomething()
+    {
+        await _manager.Broadcast(k => k.Path == "/my/cool/endpoint", "Hello!");
+    }
+}
+
+// DependencyInjection should provide IWebSocketManager to builder
+services.AddSingleton<MyCoolService>(); 
+```
+
 
 ## Lifecycle Management
 1. **Connection** - Automatically handled by middleware
